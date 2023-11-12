@@ -1,14 +1,13 @@
 use std::path::Path;
 
-use crate::symlink::symlink;
+mod files;
 
-mod symlink;
-
-fn main() {
+fn main() -> std::io::Result<()> {
     let from = Path::new("./test.txt");
     let to = Path::new("./test2.txt");
 
-    let link = symlink(from, to).unwrap(); // Do not panic!
+    files::rename(from, to)?;
+    let link = files::symlink(to, from).unwrap(); // Do not panic!
 
     println!("{:?}", link);
 
@@ -17,4 +16,6 @@ fn main() {
         from.display(),
         to.display()
     );
+
+    Ok(()) // TODO: Manage error correctly later
 }
