@@ -17,14 +17,11 @@ impl SymLink {
 }
 
 pub fn symlink(from: &Path, to: &Path) -> io::Result<SymLink> {
-    if from.try_exists().is_ok_and(|p| p) && to.try_exists().is_ok_and(|p| !p) {
-        std::os::unix::fs::symlink(from, to)?;
+    std::os::unix::fs::symlink(from, to)?;
 
-        Ok(SymLink::new(from, to))
-    } else {
-        Err(io::Error::new(
-            io::ErrorKind::Other,
-            "expected files not present",
-        ))
-    }
+    Ok(SymLink::new(from, to))
+}
+
+pub fn rename(from: &Path, to: &Path) -> io::Result<()> {
+    std::fs::rename(from, to)
 }
