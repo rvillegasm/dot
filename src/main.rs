@@ -1,5 +1,6 @@
 use std::path::Path;
 
+mod config;
 mod files;
 
 fn main() -> std::io::Result<()> {
