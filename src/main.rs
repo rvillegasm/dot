@@ -1,5 +1,6 @@
 use std::path::Path;
 
+mod commands;
 mod config;
 mod files;
 

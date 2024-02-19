@@ -3,8 +3,8 @@ use std::path::{Path, PathBuf};
 
 #[derive(Debug)]
 pub struct SymLink {
-    from: PathBuf,
-    to: PathBuf,
+    pub from: PathBuf,
+    pub to: PathBuf,
 }
 
 impl SymLink {
@@ -24,4 +24,12 @@ pub fn symlink(from: &Path, to: &Path) -> io::Result<SymLink> {
 
 pub fn rename(from: &Path, to: &Path) -> io::Result<()> {
     std::fs::rename(from, to)
+}
+
+pub fn read(from: &Path) -> io::Result<String> {
+    std::fs::read_to_string(from)
+}
+
+pub fn write(to: &Path, buffer: &str) -> io::Result<()> {
+    std::fs::write(to, buffer)
 }
