@@ -1,7 +1,4 @@
-use std::{
-    io,
-    path::{Path, PathBuf},
-};
+use std::{io, path::PathBuf};
 
 use crate::{config, files};
 
@@ -21,7 +18,7 @@ pub fn add(file_path: &str) -> io::Result<()> {
     let config = config::insert(
         &config,
         link.from.to_str().unwrap().to_owned(), // TODO: remove unwrap
-        link.to.to_str().unwrap().to_owned(),   // TODO: remove unwrap
+        link.to.to_str().unwrap().to_owned(),   // TODO: remove unwrap, also add full aboslute path
     );
 
     let config_buffer = config::save(&config).unwrap(); // TODO: remove unwrap

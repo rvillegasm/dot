@@ -1,19 +1,21 @@
-use toml::ser::Error;
+use std::collections::HashMap;
 
-pub const CONFIG_FILE_NAME: &str = "dot_config.toml";
+use toml::{de, ser};
 
-pub type Config = toml::Table;
+pub const CONFIG_FILE_NAME: &str = ".dot_config.toml";
 
-pub fn load(buffer: &str) -> Result<Config, Error> {
-    toml::Table::try_from(buffer)
+pub type Config = HashMap<String, String>;
+
+pub fn load(buffer: &str) -> Result<Config, de::Error> {
+    toml::from_str(buffer)
 }
 
-pub fn save(config: &Config) -> Result<String, Error> {
+pub fn save(config: &Config) -> Result<String, ser::Error> {
     toml::to_string(config)
 }
 
 pub fn insert(config: &Config, file: String, link: String) -> Config {
     let mut updated_config = config.clone();
-    updated_config.insert(file, toml::Value::String(link));
+    updated_config.insert(file, link);
     updated_config
 }
