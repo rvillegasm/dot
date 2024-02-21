@@ -19,3 +19,7 @@ pub fn insert(config: &Config, file: String, link: String) -> Config {
     updated_config.insert(file, link);
     updated_config
 }
+
+pub fn has(config: &Config, file: &str) -> bool {
+    config.get(file).is_some()
+}

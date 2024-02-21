@@ -10,7 +10,11 @@ pub fn add(file_path: &str) -> io::Result<()> {
     let config_path = PathBuf::from(config::CONFIG_FILE_NAME);
     let config = config::load(&files::read(&config_path)?).unwrap(); // TODO: remove unwrap
 
-    // TODO: make sure the file is not already in the config and being tracked
+    if config::has(&config, &destination_file_path.to_str().unwrap()) {
+        // TODO: remove unwrap above
+        println!("File already being tracked");
+        return Ok(());
+    }
 
     files::rename(&original_file_path, &destination_file_path)?;
     let link = files::symlink(&destination_file_path, &original_file_path)?;
