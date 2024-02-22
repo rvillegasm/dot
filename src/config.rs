@@ -5,7 +5,7 @@ use std::{
 
 use toml::{de, ser};
 
-pub const CONFIG_FILE_NAME: &str = ".dot_config.toml";
+pub const CONFIG_FILE_NAME: &str = "dot_config.toml";
 
 pub type Config = HashMap<PathBuf, PathBuf>;
 

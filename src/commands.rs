@@ -4,11 +4,11 @@ use crate::{config, files};
 
 pub fn add(file_path: &str) -> io::Result<()> {
     let original_file_path = PathBuf::from(file_path);
-    let file_name = original_file_path
-        .file_name()
-        .ok_or_else(|| io::Error::new(io::ErrorKind::NotFound, "File name not found"))?;
-
-    let destination_file_path = PathBuf::from(file_name);
+    let destination_file_path = PathBuf::from(
+        original_file_path
+            .file_name()
+            .ok_or_else(|| io::Error::new(io::ErrorKind::NotFound, "File name not found"))?,
+    );
 
     let config_path = PathBuf::from(config::CONFIG_FILE_NAME);
     let config = config::load(&files::read(&config_path)?)
