@@ -14,12 +14,7 @@ pub fn add(file_path: &str) -> io::Result<()> {
     let config = config::load(&files::read(&config_path)?)
         .map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;
 
-    if config::has(
-        &config,
-        file_name.to_str().ok_or_else(|| {
-            io::Error::new(io::ErrorKind::InvalidData, "File name is not valid UTF-8")
-        })?,
-    ) {
+    if config::has(&config, &destination_file_path) {
         println!("File already being tracked");
         return Ok(());
     }
@@ -27,12 +22,7 @@ pub fn add(file_path: &str) -> io::Result<()> {
     files::rename(&original_file_path, &destination_file_path)?;
     let link = files::symlink(&destination_file_path, &original_file_path)?;
 
-    let config = config::insert(
-        &config,
-        link.from.to_str().unwrap().to_owned(), // TODO: remove unwrap
-        link.to.to_str().unwrap().to_owned(),   // TODO: remove unwrap, also add full aboslute path
-    );
-
+    let config = config::insert(&config, link.from, link.to);
     let config_buffer =
         config::save(&config).map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;
 

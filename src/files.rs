@@ -17,7 +17,12 @@ impl SymLink {
 }
 
 pub fn symlink(from: &Path, to: &Path) -> io::Result<SymLink> {
-    std::os::unix::fs::symlink(from, to)?;
+    let current_dir = std::env::current_dir()?;
+
+    let from_absolute = current_dir.join(from);
+    let to_absolute = current_dir.join(to);
+
+    std::os::unix::fs::symlink(from_absolute, to_absolute)?;
 
     Ok(SymLink::new(from, to))
 }
