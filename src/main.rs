@@ -1,5 +1,6 @@
 mod commands;
 mod config;
+mod error;
 mod files;
 
 fn main() -> std::io::Result<()> {
