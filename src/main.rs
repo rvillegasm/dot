@@ -1,11 +1,13 @@
 mod cli;
-mod commands;
 mod config;
 mod error;
 mod files;
+mod handlers;
 
-fn main() -> std::io::Result<()> {
-    commands::add("../test.txt")?;
+fn main() -> color_eyre::eyre::Result<()> {
+    color_eyre::install()?;
 
-    Ok(()) // TODO: Manage error correctly later
+    cli::parse()?;
+
+    Ok(())
 }
