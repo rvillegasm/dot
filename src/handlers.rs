@@ -28,3 +28,7 @@ pub fn add(file_path: &str) -> io::Result<()> {
 
     Ok(())
 }
+
+pub fn sync() -> io::Result<()> {
+    todo!();
+}

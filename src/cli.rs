@@ -20,6 +20,10 @@ enum Commands {
         /// Path to the file/directory to track
         path: String,
     },
+
+    /// Goes through the dot_config.toml and creates symlinks for each file if there isn't already
+    /// one
+    Sync,
 }
 
 pub fn parse() -> io::Result<()> {
@@ -27,5 +31,6 @@ pub fn parse() -> io::Result<()> {
 
     match &cli.command {
         Commands::Add { path: file_path } => handlers::add(&file_path),
+        Commands::Sync => handlers::sync(),
     }
 }
