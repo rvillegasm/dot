@@ -1,9 +1,16 @@
-use std::io;
+use std::{io, path::Path};
 
 pub type Error = io::Error;
 
-pub fn not_found() -> Error {
-    io::Error::new(io::ErrorKind::NotFound, "File name not found")
+pub fn not_found(path: &Path) -> Error {
+    io::Error::new(
+        io::ErrorKind::NotFound,
+        format!("{} not found", path.display()),
+    )
+}
+
+pub fn invalid_path() -> Error {
+    io::Error::new(io::ErrorKind::InvalidData, "Given path is not supported")
 }
 
 pub fn from_other<E>(e: E) -> Error
