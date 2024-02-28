@@ -30,5 +30,23 @@ pub fn add(file_path: &str) -> io::Result<()> {
 }
 
 pub fn sync() -> io::Result<()> {
-    todo!();
+    let config_path = PathBuf::from(config::CONFIG_FILE_NAME);
+    let config = config::load(&files::read(&config_path)?).map_err(error::from_other)?;
+
+    for (current_path, path_to_symlink) in config.iter() {
+        if !files::exists(path_to_symlink) {
+            files::create_parent_path(path_to_symlink)?;
+
+            let link = files::symlink(current_path, path_to_symlink)?;
+
+            println!("Linked {} to {}", link.from.display(), link.to.display())
+        } else if !files::is_symlink(path_to_symlink)? {
+            println!(
+                "Found file {}. Please remove it to sync tracked version",
+                path_to_symlink.display(),
+            )
+        }
+    }
+
+    Ok(())
 }

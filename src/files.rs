@@ -1,5 +1,7 @@
-use std::io;
 use std::path::{Path, PathBuf};
+use std::{fs, io};
+
+use crate::error;
 
 #[derive(Debug)]
 pub struct SymLink {
@@ -27,14 +29,29 @@ pub fn symlink(from: &Path, to: &Path) -> io::Result<SymLink> {
     Ok(SymLink::new(from, to))
 }
 
+pub fn is_symlink(path: &Path) -> io::Result<bool> {
+    let metadata = fs::symlink_metadata(path)?;
+    let file_type = metadata.file_type();
+
+    Ok(file_type.is_symlink())
+}
+
+pub fn exists(path: &Path) -> bool {
+    path.try_exists().is_ok_and(|exists| exists)
+}
+
 pub fn rename(from: &Path, to: &Path) -> io::Result<()> {
-    std::fs::rename(from, to)
+    fs::rename(from, to)
+}
+
+pub fn create_parent_path(path: &Path) -> io::Result<()> {
+    fs::create_dir_all(path.parent().ok_or_else(error::invalid_path)?)
 }
 
 pub fn read(from: &Path) -> io::Result<String> {
-    std::fs::read_to_string(from)
+    fs::read_to_string(from)
 }
 
 pub fn write(to: &Path, buffer: &str) -> io::Result<()> {
-    std::fs::write(to, buffer)
+    fs::write(to, buffer)
 }
