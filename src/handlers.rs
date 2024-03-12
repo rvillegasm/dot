@@ -29,6 +29,43 @@ pub fn add(file_path: &str) -> io::Result<()> {
     Ok(())
 }
 
+pub fn remove(file_path: &str) -> io::Result<()> {
+    let file_to_remove = PathBuf::from(file_path);
+
+    let config_path = PathBuf::from(config::CONFIG_FILE_NAME);
+    let config = config::load(&files::read(&config_path)?).map_err(error::from_other)?;
+
+    let destination_file_path =
+        config::get(&config, &file_to_remove).ok_or_else(|| error::not_found(&file_to_remove))?;
+
+    let to_remove_exists = files::exists(&file_to_remove)
+        .then_some(())
+        .ok_or_else(|| error::not_found(&file_to_remove));
+
+    let destination_exists = files::exists(&destination_file_path)
+        .then_some(())
+        .ok_or_else(|| error::not_found(&destination_file_path));
+
+    if !to_remove_exists
+        .and(destination_exists)
+        .and(files::is_symlink(&destination_file_path))?
+    {
+        return Err(error::symlink_not_found(&destination_file_path));
+    }
+
+    files::rename(&file_to_remove, &destination_file_path)?;
+
+    let updated_config = config::remove(&config, &file_to_remove);
+    let updated_config_buffer = config::save(&updated_config).map_err(error::from_other)?;
+
+    files::write(&config_path, &updated_config_buffer)?;
+
+    println!("{} no longer being tracked", &file_to_remove.display());
+    println!("{} returned to original path", &file_to_remove.display());
+
+    Ok(())
+}
+
 pub fn sync() -> io::Result<()> {
     let config_path = PathBuf::from(config::CONFIG_FILE_NAME);
     let config = config::load(&files::read(&config_path)?).map_err(error::from_other)?;
