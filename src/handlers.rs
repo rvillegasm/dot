@@ -50,7 +50,7 @@ pub fn remove(file_path: &str) -> io::Result<()> {
         .and(destination_exists)
         .and(files::is_symlink(&destination_file_path))?
     {
-        // TODO: create a new expected symlink not found error
+        return Err(error::symlink_not_found(&destination_file_path));
     }
 
     files::rename(&file_to_remove, &destination_file_path)?;
