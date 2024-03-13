@@ -9,6 +9,20 @@ pub fn not_found(path: &Path) -> Error {
     )
 }
 
+pub fn already_exists(path: &Path) -> Error {
+    io::Error::new(
+        io::ErrorKind::AlreadyExists,
+        format!("{} already exists", path.display()),
+    )
+}
+
+pub fn already_tracked(path: &Path) -> Error {
+    io::Error::new(
+        io::ErrorKind::AlreadyExists,
+        format!("{} is already being tracked", path.display()),
+    )
+}
+
 pub fn invalid_path() -> Error {
     io::Error::new(io::ErrorKind::InvalidData, "Given path is not supported")
 }
