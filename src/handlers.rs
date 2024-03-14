@@ -72,6 +72,7 @@ pub fn remove(file_path: &str) -> io::Result<()> {
         return Err(error::symlink_not_found(&destination_file_path));
     }
 
+    files::remove(&destination_file_path)?;
     files::rename(&file_to_remove, &destination_file_path)?;
 
     let updated_manifest = manifest::remove(&manifest, &file_to_remove);

@@ -40,6 +40,14 @@ pub fn exists(path: &Path) -> bool {
     path.try_exists().is_ok_and(|exists| exists)
 }
 
+pub fn remove(path: &Path) -> io::Result<()> {
+    if path.is_dir() {
+        fs::remove_dir_all(path)
+    } else {
+        fs::remove_file(path)
+    }
+}
+
 pub fn rename(from: &Path, to: &Path) -> io::Result<()> {
     fs::rename(from, to)
 }
