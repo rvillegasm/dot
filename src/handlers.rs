@@ -11,8 +11,6 @@ pub fn init() -> io::Result<()> {
 
     files::write(&manifest_path, "")?;
 
-    println!("Created file {}", manifest::MANIFEST_FILE_NAME);
-
     Ok(())
 }
 
@@ -80,12 +78,6 @@ pub fn remove(file_path: &str) -> io::Result<()> {
 
     files::write(&manifest_path, &updated_manifest_buffer)?;
 
-    println!(
-        "{} returned to {}",
-        &file_to_remove.display(),
-        &destination_file_path.display()
-    );
-
     Ok(())
 }
 
@@ -105,7 +97,7 @@ pub fn sync() -> io::Result<()> {
 
             println!("{} -> {}", &link.from.display(), &link.to.display())
         } else if !files::is_symlink(path_to_symlink)? {
-            println!(
+            eprintln!(
                 "Found file {}. Please remove it to sync tracked version",
                 &path_to_symlink.display(),
             )
