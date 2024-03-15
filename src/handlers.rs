@@ -37,12 +37,6 @@ pub fn add(file_path: &str) -> io::Result<()> {
 
     files::write(&manifest_path, &manifest_buffer)?;
 
-    println!(
-        "{} -> {}",
-        &destination_file_path.display(),
-        &original_file_path.display()
-    );
-
     Ok(())
 }
 
