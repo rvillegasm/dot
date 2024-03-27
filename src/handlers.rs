@@ -37,6 +37,12 @@ pub fn add(file_path: &str) -> io::Result<()> {
 
     files::write(&manifest_path, &manifest_buffer)?;
 
+    println!(
+        "{} -> {}",
+        &destination_file_path.display(),
+        &original_file_path.display()
+    );
+
     Ok(())
 }
 
@@ -72,12 +78,16 @@ pub fn remove(file_path: &str) -> io::Result<()> {
 
     files::write(&manifest_path, &updated_manifest_buffer)?;
 
+    println!("Removed {}", &file_to_remove.display());
+
     Ok(())
 }
 
 pub fn sync() -> io::Result<()> {
     let manifest_path = PathBuf::from(manifest::MANIFEST_FILE_NAME);
     let manifest = manifest::load(&files::read(&manifest_path)?).map_err(error::from_other)?;
+
+    let mut up_to_date = true;
 
     for (current_path, path_to_symlink) in manifest.iter() {
         if !files::exists(current_path) {
@@ -91,11 +101,16 @@ pub fn sync() -> io::Result<()> {
 
             println!("{} -> {}", &link.from.display(), &link.to.display())
         } else if !files::is_symlink(path_to_symlink)? {
+            up_to_date = false;
             eprintln!(
                 "Found file {}. Please remove it to sync tracked version",
                 &path_to_symlink.display(),
             )
         }
+    }
+
+    if up_to_date {
+        println!("Up to date");
     }
 
     Ok(())
