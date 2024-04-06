@@ -37,8 +37,8 @@ pub fn parse() -> io::Result<()> {
 
     match &cli.command {
         Command::Init => handlers::init(),
-        Command::Add { path: file_path } => handlers::add(&file_path),
-        Command::Remove { path: file_path } => handlers::remove(&file_path),
+        Command::Add { path: file_path } => handlers::add(file_path),
+        Command::Remove { path: file_path } => handlers::remove(file_path),
         Command::Sync => handlers::sync(),
     }
 }

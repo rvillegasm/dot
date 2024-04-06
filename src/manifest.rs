@@ -30,7 +30,7 @@ pub fn remove(manifest: &Manifest, file: &PathBuf) -> Manifest {
 }
 
 pub fn get(manifest: &Manifest, file: &Path) -> Option<PathBuf> {
-    manifest.get(file).clone().map(PathBuf::to_owned)
+    manifest.get(file).map(PathBuf::to_owned)
 }
 
 pub fn has(manifest: &Manifest, file: &Path) -> bool {
