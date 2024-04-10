@@ -1,9 +1,12 @@
 use std::{
     collections::HashMap,
+    io,
     path::{Path, PathBuf},
 };
 
 use toml::{de, ser};
+
+use crate::error;
 
 pub const MANIFEST_FILE_NAME: &str = "dot.toml";
 
@@ -17,7 +20,13 @@ pub fn save(manifest: &Manifest) -> Result<String, ser::Error> {
     toml::to_string(manifest)
 }
 
-pub fn insert(manifest: &Manifest, file: PathBuf, link: PathBuf) -> Manifest {
+pub fn insert(manifest: &Manifest, file: PathBuf, link: PathBuf) -> io::Result<Manifest> {
+    // TODO: save the path using the dirs crate to save a ~ reference
+    let home_dir = dirs::home_dir().ok_or_else(error::invalid_path)?;
+    let modified_link = if link.canonicalize()?.starts_with(home_dir) {
+    } else {
+    };
+
     let mut updated_config = manifest.clone();
     updated_config.insert(file, link);
     updated_config
