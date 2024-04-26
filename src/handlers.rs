@@ -16,7 +16,7 @@ pub fn init() -> io::Result<()> {
 
 pub fn add(file_path: &str) -> io::Result<()> {
     let original_file_path = PathBuf::from(file_path);
-    let destination_file_path = PathBuf::from(
+    let pwd_file_path = PathBuf::from(
         original_file_path
             .file_name()
             .ok_or_else(|| error::not_found(&original_file_path))?,
@@ -25,21 +25,21 @@ pub fn add(file_path: &str) -> io::Result<()> {
     let manifest_path = PathBuf::from(manifest::MANIFEST_FILE_NAME);
     let manifest = manifest::load(&files::read(&manifest_path)?).map_err(error::from_other)?;
 
-    if manifest::has(&manifest, &destination_file_path) {
-        return Err(error::already_tracked(&destination_file_path));
+    if manifest::has(&manifest, &pwd_file_path) {
+        return Err(error::already_tracked(&pwd_file_path));
     }
 
-    files::rename(&original_file_path, &destination_file_path)?;
-    let link = files::symlink(&destination_file_path, &original_file_path)?;
+    files::rename(&original_file_path, &pwd_file_path)?;
+    let link = files::symlink(&pwd_file_path, &original_file_path)?;
 
-    let manifest = manifest::insert(&manifest, link.from, link.to);
+    let manifest = manifest::insert(&manifest, link.from, link.to)?;
     let manifest_buffer = manifest::save(&manifest).map_err(error::from_other)?;
 
     files::write(&manifest_path, &manifest_buffer)?;
 
     println!(
         "{} -> {}",
-        &destination_file_path.display(),
+        &pwd_file_path.display(),
         &original_file_path.display()
     );
 
