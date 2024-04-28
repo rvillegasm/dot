@@ -1,24 +1,22 @@
-use std::path::{Path, PathBuf};
+use std::path::Path;
 use std::{fs, io};
 
 use crate::error;
 
 #[derive(Debug)]
-pub struct SymLink {
-    pub from: PathBuf,
-    pub to: PathBuf,
+pub struct SymLink<'a> {
+    pub from: &'a Path,
+    pub to: &'a Path,
 }
 
-impl SymLink {
-    fn new(from: &Path, to: &Path) -> Self {
-        SymLink {
-            from: PathBuf::from(from),
-            to: PathBuf::from(to),
-        }
+impl<'a> SymLink<'a> {
+    fn new(from: &'a Path, to: &'a Path) -> Self {
+        SymLink { from, to }
     }
 }
 
-pub fn symlink(from: &Path, to: &Path) -> io::Result<SymLink> {
+// TODO: add this to the constructor of the symlink
+pub fn symlink<'a>(from: &'a Path, to: &'a Path) -> io::Result<SymLink<'a>> {
     let current_dir = std::env::current_dir()?;
 
     let from_absolute = current_dir.join(from);

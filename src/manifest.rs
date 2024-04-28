@@ -6,7 +6,7 @@ use std::{
 
 use toml::{de, ser};
 
-use crate::{error, path_ext::ToLexicalAbsolute};
+use crate::{error, files::SymLink, path_ext::ToLexicalAbsolute};
 
 pub const MANIFEST_FILE_NAME: &str = "dot.toml";
 
@@ -21,23 +21,23 @@ pub fn save(manifest: &Manifest) -> Result<String, ser::Error> {
     toml::to_string(manifest)
 }
 
-pub fn insert(manifest: &Manifest, file: PathBuf, link: PathBuf) -> io::Result<Manifest> {
+pub fn insert(manifest: &Manifest, symlink: &SymLink) -> io::Result<Manifest> {
     let home_dir = dirs::home_dir().ok_or_else(error::invalid_path)?;
-    let absolute_path_link = link.to_lexical_absolute()?;
+    let absolute_path_link = symlink.to.to_lexical_absolute()?;
 
     let modified_link = if absolute_path_link.starts_with(&home_dir) {
         Path::new("~").join(absolute_path_link.strip_prefix(home_dir).unwrap())
     } else {
-        link
+        symlink.to.to_owned()
     };
 
     let mut updated_config = manifest.clone();
-    updated_config.insert(file, modified_link);
+    updated_config.insert(symlink.from.to_owned(), modified_link);
 
     Ok(updated_config)
 }
 
-pub fn remove(manifest: &Manifest, file: &PathBuf) -> Manifest {
+pub fn remove(manifest: &Manifest, file: &Path) -> Manifest {
     let mut updated_config = manifest.clone();
     updated_config.remove(file);
     updated_config

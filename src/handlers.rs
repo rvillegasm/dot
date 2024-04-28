@@ -1,68 +1,69 @@
-use std::{io, path::PathBuf};
+use std::{io, path::Path};
 
 use crate::{error, files, manifest};
 
 pub fn init() -> io::Result<()> {
-    let manifest_path = PathBuf::from(manifest::MANIFEST_FILE_NAME);
+    let manifest_path = Path::new(manifest::MANIFEST_FILE_NAME);
 
-    if files::exists(&manifest_path) {
-        return Err(error::already_exists(&manifest_path));
+    if files::exists(manifest_path) {
+        return Err(error::already_exists(manifest_path));
     }
 
-    files::write(&manifest_path, "")?;
+    files::write(manifest_path, "")?;
 
     Ok(())
 }
 
 pub fn add(file_path: &str) -> io::Result<()> {
-    let original_file_path = PathBuf::from(file_path);
-    let pwd_file_path = PathBuf::from(
+    let original_file_path = Path::new(file_path);
+    let pwd_file_path = Path::new(
         original_file_path
             .file_name()
-            .ok_or_else(|| error::not_found(&original_file_path))?,
+            .ok_or_else(|| error::not_found(original_file_path))?,
     );
 
-    let manifest_path = PathBuf::from(manifest::MANIFEST_FILE_NAME);
-    let manifest = manifest::load(&files::read(&manifest_path)?).map_err(error::from_other)?;
+    let manifest_path = Path::new(manifest::MANIFEST_FILE_NAME);
+    let manifest = manifest::load(&files::read(manifest_path)?).map_err(error::from_other)?;
 
-    if manifest::has(&manifest, &pwd_file_path) {
-        return Err(error::already_tracked(&pwd_file_path));
+    if manifest::has(&manifest, pwd_file_path) {
+        return Err(error::already_tracked(pwd_file_path));
     }
 
-    files::rename(&original_file_path, &pwd_file_path)?;
-    let link = files::symlink(&pwd_file_path, &original_file_path)?;
+    files::rename(original_file_path, pwd_file_path)?;
+    let symlink = files::symlink(pwd_file_path, original_file_path)?;
 
-    let manifest = manifest::insert(&manifest, link.from, link.to)?;
+    let manifest = manifest::insert(&manifest, &symlink)?;
     let manifest_buffer = manifest::save(&manifest).map_err(error::from_other)?;
 
-    files::write(&manifest_path, &manifest_buffer)?;
+    files::write(manifest_path, &manifest_buffer)?;
 
     println!(
         "{} -> {}",
-        &pwd_file_path.display(),
-        &original_file_path.display()
+        pwd_file_path.display(),
+        original_file_path.display()
     );
 
     Ok(())
 }
 
 pub fn remove(file_path: &str) -> io::Result<()> {
-    let file_to_remove = PathBuf::from(file_path);
+    let file_to_remove = Path::new(file_path);
 
-    let manifest_path = PathBuf::from(manifest::MANIFEST_FILE_NAME);
-    let manifest = manifest::load(&files::read(&manifest_path)?).map_err(error::from_other)?;
+    let manifest_path = Path::new(manifest::MANIFEST_FILE_NAME);
+    let manifest = manifest::load(&files::read(manifest_path)?).map_err(error::from_other)?;
 
-    let destination_file_path = manifest::get(&manifest, &file_to_remove)
-        .ok_or_else(|| error::not_found(&file_to_remove))?;
+    let destination_file_path =
+        manifest::get(&manifest, file_to_remove).ok_or_else(|| error::not_found(file_to_remove))?;
 
-    let to_remove_exists = files::exists(&file_to_remove)
+    let to_remove_exists = files::exists(file_to_remove)
         .then_some(())
-        .ok_or_else(|| error::not_found(&file_to_remove));
+        .ok_or_else(|| error::not_found(file_to_remove));
 
     let destination_exists = files::exists(&destination_file_path)
         .then_some(())
         .ok_or_else(|| error::not_found(&destination_file_path));
 
+    // TODO: Improve the checking here to make it simpler
     if !to_remove_exists
         .and(destination_exists)
         .and(files::is_symlink(&destination_file_path))?
@@ -71,12 +72,12 @@ pub fn remove(file_path: &str) -> io::Result<()> {
     }
 
     files::remove(&destination_file_path)?;
-    files::rename(&file_to_remove, &destination_file_path)?;
+    files::rename(file_to_remove, &destination_file_path)?;
 
-    let updated_manifest = manifest::remove(&manifest, &file_to_remove);
+    let updated_manifest = manifest::remove(&manifest, file_to_remove);
     let updated_manifest_buffer = manifest::save(&updated_manifest).map_err(error::from_other)?;
 
-    files::write(&manifest_path, &updated_manifest_buffer)?;
+    files::write(manifest_path, &updated_manifest_buffer)?;
 
     println!("Removed {}", &file_to_remove.display());
 
@@ -84,8 +85,8 @@ pub fn remove(file_path: &str) -> io::Result<()> {
 }
 
 pub fn sync() -> io::Result<()> {
-    let manifest_path = PathBuf::from(manifest::MANIFEST_FILE_NAME);
-    let manifest = manifest::load(&files::read(&manifest_path)?).map_err(error::from_other)?;
+    let manifest_path = Path::new(manifest::MANIFEST_FILE_NAME);
+    let manifest = manifest::load(&files::read(manifest_path)?).map_err(error::from_other)?;
 
     let mut up_to_date = true;
 
