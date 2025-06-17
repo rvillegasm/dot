@@ -1,8 +1,6 @@
-use std::io;
-
 use clap::{Parser, Subcommand};
 
-use crate::handlers;
+use crate::{error::DotError, handlers};
 
 #[derive(Parser)]
 #[command(version)]
@@ -32,7 +30,7 @@ enum Command {
     Sync,
 }
 
-pub fn parse() -> io::Result<()> {
+pub fn parse() -> Result<(), DotError> {
     let cli = Cli::parse();
 
     match &cli.command {
