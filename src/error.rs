@@ -18,6 +18,4 @@ pub enum DotError {
     InvalidPath,
     #[error("Expected {0} to be a symlink")]
     SymlinkNotFound(PathBuf),
-    #[error("Other error: {0}")]
-    Other(String),
 }
