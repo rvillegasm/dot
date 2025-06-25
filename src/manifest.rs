@@ -67,15 +67,14 @@ impl ManifestOperations for Manifest {
     }
 
     fn get_symlink_path<P: AsRef<Path>>(&self, file: P) -> Option<PathBuf> {
-        let stored_path = self.entries.get(file.as_ref())?;
+        let stored_path = self.entries.get(file.as_ref());
         
-        if let Some(path_str) = stored_path.to_str() {
-            if path_str.starts_with("~") {
-                return dirs::home_dir().map(|home_dir| home_dir.join(path_str.strip_prefix("~").unwrap()));
+        match stored_path {
+            Some(path_str) if path_str.starts_with("~") => {
+                dirs::home_dir().map(|home_dir| home_dir.join(path_str.strip_prefix("~").unwrap()))
             }
+            _ => stored_path.map(|p| p.to_owned())
         }
-        
-        Some(stored_path.to_owned())
     }
 
     fn iter_tracked_files(&self) -> Iter<'_, PathBuf, PathBuf> {

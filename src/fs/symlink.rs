@@ -46,8 +46,9 @@ impl<F: FileSystem> UnixSymLinkOperations<F> {
 
 impl<F: FileSystem> SymLinkOperations for UnixSymLinkOperations<F> {
     fn create_symlink<P: AsRef<Path>, Q: AsRef<Path>>(&self, from: P, to: Q) -> Result<SymLink, DotError> {
-        let from_abs = self.fs.current_dir()?.join(from.as_ref());
-        let to_abs = self.fs.current_dir()?.join(to.as_ref());
+        let current_dir = self.fs.current_dir()?;
+        let from_abs = current_dir.join(from.as_ref());
+        let to_abs = current_dir.join(to.as_ref());
         std::os::unix::fs::symlink(&from_abs, &to_abs)?;
         Ok(SymLink::new(from_abs, to_abs))
     }

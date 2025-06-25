@@ -41,4 +41,8 @@ impl FileSystem for StdFileSystem {
     fn current_dir(&self) -> Result<PathBuf, DotError> {
         std::env::current_dir().map_err(DotError::Io)
     }
+
+    fn create_dir_all(&self, path: &Path) -> Result<(), DotError> {
+        std::fs::create_dir_all(path).map_err(DotError::from)
+    }
 }

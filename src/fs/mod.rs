@@ -27,4 +27,10 @@ pub trait FileSystem {
     
     /// Get the current working directory.
     fn current_dir(&self) -> Result<PathBuf, DotError>;
+    
+    /// Create all directories for a given path.
+    fn create_dir_all(&self, path: &Path) -> Result<(), DotError>;
 }
+
+/// A concrete implementation of the FileSystem trait that uses the standard library
+pub struct DiskFileSystem;
