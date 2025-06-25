@@ -1,10 +1,11 @@
 use clap::{Parser, Subcommand};
 
 use crate::{
-    commands::{AddCommand, ConsoleOutput, DotCommand, InitCommand, RemoveCommand, SyncCommand},
+    commands::{AddCommand, DotCommand, InitCommand, RemoveCommand, SyncCommand},
     error::DotError,
     fs::{operations::StdFileSystem, symlink::UnixSymLinkOperations},
     manifest::Manifest,
+    output::ConsoleOutput,
     service::DotService,
 };
 
