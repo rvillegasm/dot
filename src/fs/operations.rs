@@ -5,7 +5,7 @@ use crate::error::DotError;
 use crate::fs::FileSystem;
 
 /// Standard implementation of file system operations using `std::fs`.
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct StdFileSystem;
 
 impl FileSystem for StdFileSystem {

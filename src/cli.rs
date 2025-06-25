@@ -40,15 +40,15 @@ pub enum Command {
 pub fn parse() -> Result<(), DotError> {
     let cli = Cli::parse();
     let fs = StdFileSystem;
-    let symlink_ops = UnixSymLinkOperations::new(fs.clone());
+    let symlink_ops = UnixSymLinkOperations::new(&fs);
 
-    let command: Box<dyn DotCommand> = if let Command::Init = cli.command {
+    let mut command: Box<dyn DotCommand> = if let Command::Init = cli.command {
         let manifest = Manifest::empty();
-        let service = DotService::new(fs, symlink_ops, manifest);
+        let service = DotService::new(&fs, symlink_ops, manifest);
         Box::new(InitCommand::new(service, ConsoleOutput))
     } else {
         let manifest = Manifest::from_disk(&fs)?;
-        let service = DotService::new(fs, symlink_ops, manifest);
+        let service = DotService::new(&fs, symlink_ops, manifest);
         match cli.command {
             Command::Add { path } => Box::new(AddCommand::new(service, ConsoleOutput, path)),
             Command::Remove { path } => Box::new(RemoveCommand::new(service, ConsoleOutput, path)),
@@ -56,5 +56,6 @@ pub fn parse() -> Result<(), DotError> {
             Command::Init => unreachable!(),
         }
     };
+
     command.execute()
 }

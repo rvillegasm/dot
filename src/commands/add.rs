@@ -10,21 +10,22 @@ use crate::{
 };
 
 /// Command to add a file to the dot repository
-pub struct AddCommand<F: FileSystem, S: SymLinkOperations, M: ManifestOperations, O: CommandOutput>
-{
-    service: DotService<F, S, M>,
+pub struct AddCommand<
+    'a,
+    F: FileSystem,
+    S: SymLinkOperations,
+    M: ManifestOperations,
+    O: CommandOutput,
+> {
+    service: DotService<'a, F, S, M>,
     output: O,
     file_path: String,
 }
 
-impl<
-        F: FileSystem + Clone,
-        S: SymLinkOperations + Clone,
-        M: ManifestOperations + Clone,
-        O: CommandOutput + Clone,
-    > AddCommand<F, S, M, O>
+impl<'a, F: FileSystem, S: SymLinkOperations, M: ManifestOperations, O: CommandOutput>
+    AddCommand<'a, F, S, M, O>
 {
-    pub fn new(service: DotService<F, S, M>, output: O, file_path: String) -> Self {
+    pub fn new(service: DotService<'a, F, S, M>, output: O, file_path: String) -> Self {
         Self {
             service,
             output,
@@ -33,21 +34,16 @@ impl<
     }
 }
 
-impl<
-        F: FileSystem + Clone,
-        S: SymLinkOperations + Clone,
-        M: ManifestOperations + Clone,
-        O: CommandOutput + Clone,
-    > DotCommand for AddCommand<F, S, M, O>
+impl<'a, F: FileSystem, S: SymLinkOperations, M: ManifestOperations, O: CommandOutput> DotCommand
+    for AddCommand<'a, F, S, M, O>
 {
-    fn execute(&self) -> Result<(), DotError> {
+    fn execute(&mut self) -> Result<(), DotError> {
         let original_path = Path::new(&self.file_path);
         let file_name = original_path
             .file_name()
             .ok_or_else(|| DotError::NotFound(original_path.to_path_buf()))?;
 
-        let mut service = self.service.clone();
-        service.add(&self.file_path)?;
+        self.service.add(&self.file_path)?;
 
         self.output.display_success(format!(
             "{} -> {}",

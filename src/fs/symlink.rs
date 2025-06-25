@@ -5,7 +5,7 @@ use crate::error::DotError;
 use crate::fs::FileSystem;
 
 /// Represents a symbolic link between two paths.
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct SymLink {
     /// The source path (the actual file/directory)
     pub from: PathBuf,
@@ -37,18 +37,17 @@ pub trait SymLinkOperations {
 }
 
 /// Implementation of SymLinkOperations for Unix-like systems
-#[derive(Clone)]
-pub struct UnixSymLinkOperations<F: FileSystem> {
-    fs: F,
+pub struct UnixSymLinkOperations<'a, F: FileSystem> {
+    fs: &'a F,
 }
 
-impl<F: FileSystem> UnixSymLinkOperations<F> {
-    pub fn new(fs: F) -> Self {
+impl<'a, F: FileSystem> UnixSymLinkOperations<'a, F> {
+    pub fn new(fs: &'a F) -> Self {
         Self { fs }
     }
 }
 
-impl<F: FileSystem> SymLinkOperations for UnixSymLinkOperations<F> {
+impl<'a, F: FileSystem> SymLinkOperations for UnixSymLinkOperations<'a, F> {
     fn create_symlink<P: AsRef<Path>, Q: AsRef<Path>>(
         &self,
         from: P,

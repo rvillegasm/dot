@@ -8,32 +8,29 @@ use crate::{
 };
 
 /// Command to initialize a new dot repository
-pub struct InitCommand<F: FileSystem, S: SymLinkOperations, M: ManifestOperations, O: CommandOutput>
-{
-    service: DotService<F, S, M>,
+pub struct InitCommand<
+    'a,
+    F: FileSystem,
+    S: SymLinkOperations,
+    M: ManifestOperations,
+    O: CommandOutput,
+> {
+    service: DotService<'a, F, S, M>,
     output: O,
 }
 
-impl<
-        F: FileSystem + Clone,
-        S: SymLinkOperations + Clone,
-        M: ManifestOperations + Clone,
-        O: CommandOutput + Clone,
-    > InitCommand<F, S, M, O>
+impl<'a, F: FileSystem, S: SymLinkOperations, M: ManifestOperations, O: CommandOutput>
+    InitCommand<'a, F, S, M, O>
 {
-    pub fn new(service: DotService<F, S, M>, output: O) -> Self {
+    pub fn new(service: DotService<'a, F, S, M>, output: O) -> Self {
         Self { service, output }
     }
 }
 
-impl<
-        F: FileSystem + Clone,
-        S: SymLinkOperations + Clone,
-        M: ManifestOperations + Clone,
-        O: CommandOutput + Clone,
-    > DotCommand for InitCommand<F, S, M, O>
+impl<'a, F: FileSystem, S: SymLinkOperations, M: ManifestOperations, O: CommandOutput> DotCommand
+    for InitCommand<'a, F, S, M, O>
 {
-    fn execute(&self) -> Result<(), DotError> {
+    fn execute(&mut self) -> Result<(), DotError> {
         self.service.init()?;
         self.output
             .display_success("Initialized empty dot repository");

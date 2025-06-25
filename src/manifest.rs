@@ -36,7 +36,6 @@ pub trait ManifestOperations {
 }
 
 /// Implementation of a manifest that stores dot file tracking information
-#[derive(Clone)]
 pub struct Manifest {
     entries: HashMap<PathBuf, PathBuf>,
 }

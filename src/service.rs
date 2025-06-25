@@ -7,17 +7,14 @@ use crate::{
 };
 
 /// Service for managing dot files
-#[derive(Clone)]
-pub struct DotService<F: FileSystem, S: SymLinkOperations, M: ManifestOperations> {
-    fs: F,
+pub struct DotService<'a, F: FileSystem, S: SymLinkOperations, M: ManifestOperations> {
+    fs: &'a F,
     symlink_ops: S,
     manifest: M,
 }
 
-impl<F: FileSystem + Clone, S: SymLinkOperations + Clone, M: ManifestOperations + Clone>
-    DotService<F, S, M>
-{
-    pub fn new(fs: F, symlink_ops: S, manifest: M) -> Self {
+impl<'a, F: FileSystem, S: SymLinkOperations, M: ManifestOperations> DotService<'a, F, S, M> {
+    pub fn new(fs: &'a F, symlink_ops: S, manifest: M) -> Self {
         Self {
             fs,
             symlink_ops,
@@ -120,7 +117,7 @@ impl<F: FileSystem + Clone, S: SymLinkOperations + Clone, M: ManifestOperations 
 
     /// Save the manifest to disk
     pub fn save_manifest(&self) -> Result<(), DotError> {
-        self.manifest.save(&self.fs)
+        self.manifest.save(self.fs)
     }
 
     /// Returns whether everything is up to date

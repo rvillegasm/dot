@@ -13,5 +13,5 @@ pub use sync::SyncCommand;
 /// A trait defining the core operations for the dot application
 pub trait DotCommand {
     /// Execute the command
-    fn execute(&self) -> Result<(), DotError>;
+    fn execute(&mut self) -> Result<(), DotError>;
 }

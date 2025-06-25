@@ -6,7 +6,6 @@ pub trait CommandOutput {
 }
 
 /// Standard implementation that prints to stdout/stderr
-#[derive(Clone)]
 pub struct ConsoleOutput;
 
 impl CommandOutput for ConsoleOutput {
