@@ -5,7 +5,7 @@ use crate::error::DotError;
 use crate::fs::FileSystem;
 
 /// Standard implementation of file system operations using `std::fs`.
-#[derive(Default, Debug, Clone)]
+#[derive(Debug, Clone)]
 pub struct StdFileSystem;
 
 impl FileSystem for StdFileSystem {
@@ -40,9 +40,5 @@ impl FileSystem for StdFileSystem {
 
     fn current_dir(&self) -> Result<PathBuf, DotError> {
         std::env::current_dir().map_err(DotError::Io)
-    }
-
-    fn create_dir_all(&self, path: &Path) -> Result<(), DotError> {
-        std::fs::create_dir_all(path).map_err(DotError::from)
     }
 }

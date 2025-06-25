@@ -6,12 +6,6 @@ use crate::{
     manifest::{ManifestOperations, MANIFEST_FILE_NAME},
 };
 
-/// A trait defining the core operations for the dot application
-pub trait DotCommand {
-    /// Execute the command
-    fn execute(&self) -> Result<(), DotError>;
-}
-
 /// Service for managing dot files
 #[derive(Clone)]
 pub struct DotService<F: FileSystem, S: SymLinkOperations, M: ManifestOperations> {
@@ -42,8 +36,8 @@ impl<F: FileSystem + Clone, S: SymLinkOperations + Clone, M: ManifestOperations 
     }
 
     /// Add a new file to track
-    pub fn add(&mut self, file_path: &str) -> Result<(), DotError> {
-        let original_file_path = Path::new(file_path);
+    pub fn add<P: AsRef<Path>>(&mut self, file_path: P) -> Result<(), DotError> {
+        let original_file_path = file_path.as_ref();
         let pwd_file_name = Path::new(
             original_file_path
                 .file_name()
@@ -59,16 +53,15 @@ impl<F: FileSystem + Clone, S: SymLinkOperations + Clone, M: ManifestOperations 
             .symlink_ops
             .create_symlink(pwd_file_name, original_file_path)?;
 
-        println!("symlink: {:?}", symlink);
-
         self.manifest.insert_symlink(&symlink)?;
+        self.save_manifest()?;
 
         Ok(())
     }
 
     /// Remove a tracked file
-    pub fn remove(&mut self, file_path: &str) -> Result<(), DotError> {
-        let file_to_remove = Path::new(file_path);
+    pub fn remove<P: AsRef<Path>>(&mut self, file_path: P) -> Result<(), DotError> {
+        let file_to_remove = file_path.as_ref();
         let destination_file_path = self
             .manifest
             .get_symlink_path(file_to_remove)
@@ -91,6 +84,7 @@ impl<F: FileSystem + Clone, S: SymLinkOperations + Clone, M: ManifestOperations 
         self.fs.remove(&destination_file_path)?;
         self.fs.rename(file_to_remove, &destination_file_path)?;
         self.manifest.remove_file(file_to_remove);
+        self.save_manifest()?;
 
         Ok(())
     }
@@ -126,13 +120,11 @@ impl<F: FileSystem + Clone, S: SymLinkOperations + Clone, M: ManifestOperations 
 
     /// Save the manifest to disk
     pub fn save_manifest(&self) -> Result<(), DotError> {
-        let manifest_path = Path::new(MANIFEST_FILE_NAME); // TODO: get the path directly from the manifest
-        let manifest_content = self.manifest.serialize()?;
-        self.fs.write(manifest_path, &manifest_content)
+        self.manifest.save(&self.fs)
     }
 
     /// Returns whether everything is up to date
-    pub fn is_up_to_date(&self) -> bool {
+    pub fn is_up_to_date(&self) -> Result<bool, DotError> {
         for (_, path_to_symlink) in self.manifest.iter_tracked_files() {
             // Convert relative paths to absolute for consistent handling
             let symlink_path = if !path_to_symlink.is_absolute() {
@@ -144,12 +136,10 @@ impl<F: FileSystem + Clone, S: SymLinkOperations + Clone, M: ManifestOperations 
                 path_to_symlink.clone()
             };
 
-            if self.fs.exists(&symlink_path)
-                && !self.symlink_ops.is_symlink(&symlink_path).unwrap_or(false)
-            {
-                return false;
+            if self.fs.exists(&symlink_path) && !self.symlink_ops.is_symlink(&symlink_path)? {
+                return Ok(false);
             }
         }
-        true
+        Ok(true)
     }
 }

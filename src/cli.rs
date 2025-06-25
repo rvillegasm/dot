@@ -1,16 +1,11 @@
 use clap::{Parser, Subcommand};
-use std::path::Path;
 
 use crate::{
-    commands::{AddCommand, ConsoleOutput, InitCommand, RemoveCommand, SyncCommand},
+    commands::{AddCommand, ConsoleOutput, DotCommand, InitCommand, RemoveCommand, SyncCommand},
     error::DotError,
-    fs::{
-        FileSystem,
-        operations::StdFileSystem,
-        symlink::UnixSymLinkOperations,
-    },
-    manifest::{Manifest, MANIFEST_FILE_NAME},
-    service::DotCommand,
+    fs::{operations::StdFileSystem, symlink::UnixSymLinkOperations},
+    manifest::Manifest,
+    service::DotService,
 };
 
 #[derive(Parser)]
@@ -41,52 +36,24 @@ pub enum Command {
     Sync,
 }
 
-/// Create a new manifest for the application
-fn create_manifest() -> Result<Manifest, DotError> {
-    let fs = StdFileSystem::default();
-    let manifest_path = Path::new(MANIFEST_FILE_NAME);
-    
-    if fs.exists(manifest_path) {
-        let content = fs.read(manifest_path)?;
-        Manifest::new(&content)
-    } else {
-        Ok(Manifest::empty())
-    }
-}
-
 pub fn parse() -> Result<(), DotError> {
     let cli = Cli::parse();
-    let fs = StdFileSystem::default();
+    let fs = StdFileSystem;
     let symlink_ops = UnixSymLinkOperations::new(fs.clone());
-    
-    match &cli.command {
-        Command::Init => {
-            let manifest = Manifest::empty();
-            let service = crate::service::DotService::new(fs, symlink_ops, manifest);
-            let output = ConsoleOutput;
-            let command = InitCommand::new(service, output);
-            command.execute()
+
+    let command: Box<dyn DotCommand> = if let Command::Init = cli.command {
+        let manifest = Manifest::empty();
+        let service = DotService::new(fs, symlink_ops, manifest);
+        Box::new(InitCommand::new(service, ConsoleOutput))
+    } else {
+        let manifest = Manifest::from_disk(&fs)?;
+        let service = DotService::new(fs, symlink_ops, manifest);
+        match cli.command {
+            Command::Add { path } => Box::new(AddCommand::new(service, ConsoleOutput, path)),
+            Command::Remove { path } => Box::new(RemoveCommand::new(service, ConsoleOutput, path)),
+            Command::Sync => Box::new(SyncCommand::new(service, ConsoleOutput)),
+            Command::Init => unreachable!(),
         }
-        Command::Add { path } => {
-            let manifest = create_manifest()?;
-            let service = crate::service::DotService::new(fs, symlink_ops, manifest);
-            let output = ConsoleOutput;
-            let command = AddCommand::new(service, output, path.clone());
-            command.execute()
-        }
-        Command::Remove { path } => {
-            let manifest = create_manifest()?;
-            let service = crate::service::DotService::new(fs, symlink_ops, manifest);
-            let output = ConsoleOutput;
-            let command = RemoveCommand::new(service, output, path.clone());
-            command.execute()
-        }
-        Command::Sync => {
-            let manifest = create_manifest()?;
-            let service = crate::service::DotService::new(fs, symlink_ops, manifest);
-            let output = ConsoleOutput;
-            let command = SyncCommand::new(service, output);
-            command.execute()
-        }
-    }
+    };
+    command.execute()
 }
