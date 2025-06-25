@@ -44,18 +44,23 @@ impl<F: FileSystem + Clone, S: SymLinkOperations + Clone, M: ManifestOperations 
     /// Add a new file to track
     pub fn add(&mut self, file_path: &str) -> Result<(), DotError> {
         let original_file_path = Path::new(file_path);
-        let pwd = Path::new(
+        let pwd_file_name = Path::new(
             original_file_path
                 .file_name()
                 .ok_or_else(|| DotError::NotFound(original_file_path.to_path_buf()))?,
         );
 
-        if self.manifest.has_file(pwd) {
-            return Err(DotError::AlreadyTracked(pwd.to_path_buf()));
+        if self.manifest.has_file(pwd_file_name) {
+            return Err(DotError::AlreadyTracked(pwd_file_name.to_path_buf()));
         }
 
-        self.fs.rename(original_file_path, pwd)?;
-        let symlink = self.symlink_ops.create_symlink(pwd, original_file_path)?;
+        self.fs.rename(original_file_path, pwd_file_name)?;
+        let symlink = self
+            .symlink_ops
+            .create_symlink(pwd_file_name, original_file_path)?;
+
+        println!("symlink: {:?}", symlink);
+
         self.manifest.insert_symlink(&symlink)?;
 
         Ok(())

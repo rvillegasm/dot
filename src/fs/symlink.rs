@@ -26,8 +26,12 @@ impl SymLink {
 /// A trait for handling symbolic link operations
 pub trait SymLinkOperations {
     /// Create a symlink from a source to a destination
-    fn create_symlink<F: AsRef<Path>, T: AsRef<Path>>(&self, from: F, to: T) -> Result<SymLink, DotError>;
-    
+    fn create_symlink<F: AsRef<Path>, T: AsRef<Path>>(
+        &self,
+        from: F,
+        to: T,
+    ) -> Result<SymLink, DotError>;
+
     /// Check if a path is a symlink
     fn is_symlink<P: AsRef<Path>>(&self, path: P) -> Result<bool, DotError>;
 }
@@ -45,12 +49,19 @@ impl<F: FileSystem> UnixSymLinkOperations<F> {
 }
 
 impl<F: FileSystem> SymLinkOperations for UnixSymLinkOperations<F> {
-    fn create_symlink<P: AsRef<Path>, Q: AsRef<Path>>(&self, from: P, to: Q) -> Result<SymLink, DotError> {
+    fn create_symlink<P: AsRef<Path>, Q: AsRef<Path>>(
+        &self,
+        from: P,
+        to: Q,
+    ) -> Result<SymLink, DotError> {
         let current_dir = self.fs.current_dir()?;
         let from_abs = current_dir.join(from.as_ref());
         let to_abs = current_dir.join(to.as_ref());
         std::os::unix::fs::symlink(&from_abs, &to_abs)?;
-        Ok(SymLink::new(from_abs, to_abs))
+        Ok(SymLink::new(
+            from.as_ref().to_path_buf(),
+            to.as_ref().to_path_buf(),
+        ))
     }
 
     fn is_symlink<P: AsRef<Path>>(&self, path: P) -> Result<bool, DotError> {
