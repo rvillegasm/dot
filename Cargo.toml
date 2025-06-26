@@ -1,10 +1,11 @@
 [package]
 name = "dot"
-version = "0.6.0"
+version = "0.7.0"
 edition = "2021"
 
 [dependencies]
 clap = { version = "4.5.1", features = ["derive"] }
 color-eyre = { version = "0.6.2", default-features = false }
 dirs = "5.0.1"
+thiserror = "2.0.12"
 toml = "0.8.10"

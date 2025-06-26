@@ -1,20 +1,25 @@
-use std::io;
-
 use clap::{Parser, Subcommand};
 
-use crate::handlers;
+use crate::{
+    commands::{AddCommand, DotCommand, InitCommand, RemoveCommand, SyncCommand},
+    error::DotError,
+    fs::{operations::StdFileSystem, symlink::UnixSymLinkOperations},
+    manifest::Manifest,
+    output::ConsoleOutput,
+    service::DotService,
+};
 
 #[derive(Parser)]
 #[command(version)]
-#[command(about = "A simple configuration files (i.e. dotfiles) manager ", long_about = None)]
-struct Cli {
+#[command(about = "A simple configuration files (i.e. dotfiles) manager", long_about = None)]
+pub struct Cli {
     #[command(subcommand)]
     command: Command,
 }
 
 #[derive(Subcommand)]
-enum Command {
-    /// Configures the current directory to be able to track new files
+pub enum Command {
+    /// Configures the current directory to be able to track new files by adding a manifest file
     Init,
     /// Tracks a new file/directory by moving it to the current directory and creating a symlink to its
     /// original location
@@ -32,13 +37,25 @@ enum Command {
     Sync,
 }
 
-pub fn parse() -> io::Result<()> {
+pub fn parse() -> Result<(), DotError> {
     let cli = Cli::parse();
+    let fs = StdFileSystem;
+    let symlink_ops = UnixSymLinkOperations::new(&fs);
 
-    match &cli.command {
-        Command::Init => handlers::init(),
-        Command::Add { path: file_path } => handlers::add(file_path),
-        Command::Remove { path: file_path } => handlers::remove(file_path),
-        Command::Sync => handlers::sync(),
-    }
+    let mut command: Box<dyn DotCommand> = if let Command::Init = cli.command {
+        let manifest = Manifest::empty();
+        let service = DotService::new(&fs, symlink_ops, manifest);
+        Box::new(InitCommand::new(service, ConsoleOutput))
+    } else {
+        let manifest = Manifest::from_disk(&fs)?;
+        let service = DotService::new(&fs, symlink_ops, manifest);
+        match cli.command {
+            Command::Add { path } => Box::new(AddCommand::new(service, ConsoleOutput, path)),
+            Command::Remove { path } => Box::new(RemoveCommand::new(service, ConsoleOutput, path)),
+            Command::Sync => Box::new(SyncCommand::new(service, ConsoleOutput)),
+            Command::Init => unreachable!(),
+        }
+    };
+
+    command.execute()
 }
