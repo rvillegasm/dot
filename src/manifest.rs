@@ -1,5 +1,5 @@
 use std::{
-    collections::{hash_map::Iter, HashMap},
+    collections::{btree_map::Iter, BTreeMap},
     path::{Path, PathBuf},
 };
 
@@ -37,7 +37,7 @@ pub trait ManifestOperations {
 
 /// Implementation of a manifest that stores dot file tracking information
 pub struct Manifest {
-    entries: HashMap<PathBuf, PathBuf>,
+    entries: BTreeMap<PathBuf, PathBuf>,
 }
 
 impl Manifest {
@@ -54,14 +54,14 @@ impl Manifest {
 
     /// Create a new manifest from a TOML string
     pub fn new(buffer: &str) -> Result<Manifest, DotError> {
-        let entries: HashMap<PathBuf, PathBuf> = toml::from_str(buffer)?;
+        let entries: BTreeMap<PathBuf, PathBuf> = toml::from_str(buffer)?;
         Ok(Manifest { entries })
     }
 
     /// Create an empty manifest
     pub fn empty() -> Self {
         Manifest {
-            entries: HashMap::new(),
+            entries: BTreeMap::new(),
         }
     }
 }
