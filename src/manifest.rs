@@ -6,7 +6,7 @@ use std::{
 use crate::{
     error::DotError,
     fs::{symlink::SymLink, FileSystem},
-    path_ext::ToLexicalAbsolute,
+    path_ext::HomeTildePathTransformer,
 };
 
 pub const MANIFEST_FILE_NAME: &str = "dot.toml";
@@ -64,18 +64,6 @@ impl Manifest {
             entries: HashMap::new(),
         }
     }
-
-    /// Convert a path to use ~ for home directory when appropriate
-    fn to_home_relative_path(&self, path: &Path) -> Result<PathBuf, DotError> {
-        let home_dir = dirs::home_dir().ok_or(DotError::InvalidPath)?;
-        let abs_path = path.to_lexical_absolute()?;
-
-        Ok(if abs_path.starts_with(&home_dir) {
-            Path::new("~").join(abs_path.strip_prefix(&home_dir).unwrap())
-        } else {
-            path.to_path_buf()
-        })
-    }
 }
 
 impl ManifestOperations for Manifest {
@@ -99,7 +87,7 @@ impl ManifestOperations for Manifest {
     }
 
     fn insert_symlink(&mut self, symlink: &SymLink) -> Result<(), DotError> {
-        let modified_link = self.to_home_relative_path(&symlink.to)?;
+        let modified_link = symlink.to.transform_to_tilde_path()?;
         self.entries.insert(symlink.from.to_owned(), modified_link);
         Ok(())
     }

@@ -4,6 +4,7 @@ use crate::{
     error::DotError,
     fs::{symlink::SymLinkOperations, FileSystem},
     manifest::{ManifestOperations, MANIFEST_FILE_NAME},
+    path_ext::HomeTildePathTransformer,
 };
 
 /// Service for managing dot files
@@ -93,12 +94,7 @@ impl<'a, F: FileSystem, S: SymLinkOperations, M: ManifestOperations> DotService<
                 return Err(DotError::NotFound(current_path.to_path_buf()));
             }
 
-            // Ensure path_to_symlink is absolute for consistent handling
-            let symlink_path = if !path_to_symlink.is_absolute() {
-                self.fs.current_dir()?.join(path_to_symlink)
-            } else {
-                path_to_symlink.clone()
-            };
+            let symlink_path = path_to_symlink.transform_from_tilde_path()?;
 
             if !self.fs.exists(&symlink_path) {
                 self.fs.create_parent_path(&symlink_path)?;
@@ -106,7 +102,7 @@ impl<'a, F: FileSystem, S: SymLinkOperations, M: ManifestOperations> DotService<
                     .create_symlink(current_path, &symlink_path)?;
             } else if !self.symlink_ops.is_symlink(&symlink_path)? {
                 eprintln!(
-                    "Found file {}. Please remove it to sync tracked version",
+                    "WARNING: Found file {}. Please remove it to sync tracked version",
                     &symlink_path.display(),
                 );
             }
