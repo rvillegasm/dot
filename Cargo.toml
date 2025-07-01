@@ -1,7 +1,13 @@
 [package]
 name = "dot"
-version = "0.7.0"
+version = "0.8.0"
 edition = "2021"
+description = "A simple configuration files (i.e. dotfiles) manager."
+categories = ["command-line-utilities"]
+homepage = "https://github.com/rvillegasm/dot"
+repository = "https://github.com/rvillegasm/dot"
+authors = ["Rafael Villegas <rafa.villegas.michel@gmail.com>"]
+license = "MIT"
 
 [dependencies]
 clap = { version = "4.5.1", features = ["derive"] }
