@@ -10,6 +10,6 @@ pub struct ConsoleOutput;
 
 impl CommandOutput for ConsoleOutput {
     fn display_success<D: Display>(&self, message: D) {
-        println!("{}", message);
+        println!("{message}",);
     }
 }
