@@ -111,10 +111,53 @@ impl ManifestOperations for Manifest {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::path::{Path, PathBuf};
 
     #[test]
     fn test_manifest_empty() {
         let manifest = Manifest::empty();
         assert_eq!(manifest.entries.len(), 0);
+    }
+
+    #[test]
+    fn insert_and_get_symlink_roundtrip() {
+        use crate::fs::symlink::SymLink;
+        use crate::path_ext::HomeTildePathTransformer;
+
+        let mut manifest = Manifest::empty();
+        let home = dirs::home_dir().expect("home");
+        let original = Path::new("config.txt");
+        let target = home.join(".config/config.txt");
+
+        let link = SymLink::new(original, &target);
+        manifest.insert_symlink(&link).expect("insert");
+
+        // The stored path in the manifest should use a tilde prefix
+        let expected_tilde = target.transform_to_tilde_path().unwrap();
+        assert_eq!(manifest.entries.get(original).unwrap(), &expected_tilde);
+
+        // When requesting via the API it should expand back to the full absolute path
+        assert_eq!(manifest.get_symlink_path(original).unwrap(), target);
+    }
+
+    #[test]
+    fn remove_file_returns_true_when_present() {
+        let mut manifest = Manifest::empty();
+        manifest
+            .entries
+            .insert(PathBuf::from("a"), PathBuf::from("b"));
+        assert!(manifest.remove_file("a"));
+        assert!(!manifest.has_file("a"));
+    }
+
+    #[test]
+    fn serialize_and_deserialize_consistency() {
+        let mut original = Manifest::empty();
+        original
+            .entries
+            .insert(PathBuf::from("a"), PathBuf::from("b"));
+        let toml = original.serialize().expect("serialize");
+        let parsed = Manifest::new(&toml).expect("parse");
+        assert!(parsed.has_file("a"));
     }
 }
