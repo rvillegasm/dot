@@ -1,7 +1,7 @@
 use crate::{
     commands::DotCommand,
     error::DotError,
-    fs::{symlink::SymLinkOperations, FileSystem},
+    fs::{FileSystem, symlink::SymLinkOperations},
     manifest::ManifestOperations,
     output::CommandOutput,
     service::DotService,

@@ -2,8 +2,8 @@ use std::path::Path;
 
 use crate::{
     error::DotError,
-    fs::{symlink::SymLinkOperations, FileSystem},
-    manifest::{ManifestOperations, MANIFEST_FILE_NAME},
+    fs::{FileSystem, symlink::SymLinkOperations},
+    manifest::{MANIFEST_FILE_NAME, ManifestOperations},
     path_ext::HomeTildePathTransformer,
 };
 

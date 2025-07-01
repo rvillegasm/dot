@@ -1,11 +1,11 @@
 use std::{
-    collections::{btree_map::Iter, BTreeMap},
+    collections::{BTreeMap, btree_map::Iter},
     path::{Path, PathBuf},
 };
 
 use crate::{
     error::DotError,
-    fs::{symlink::SymLink, FileSystem},
+    fs::{FileSystem, symlink::SymLink},
     path_ext::HomeTildePathTransformer,
 };
 
