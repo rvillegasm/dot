@@ -1,7 +1,7 @@
 [package]
 name = "dot_rust"
 version = "1.0.0"
-edition = "2021"
+edition = "2024"
 description = "A simple configuration files (i.e. dotfiles) manager."
 categories = ["command-line-utilities"]
 homepage = "https://github.com/rvillegasm/dot"
