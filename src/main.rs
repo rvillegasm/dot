@@ -7,10 +7,9 @@ mod output;
 mod path_ext;
 mod service;
 
-fn main() -> color_eyre::eyre::Result<()> {
-    color_eyre::install()?;
-
-    cli::parse()?;
-
-    Ok(())
+fn main() {
+    if let Err(e) = cli::parse() {
+        eprintln!("\x1b[31mError: {}\x1b[0m", e);
+        std::process::exit(1);
+    }
 }
