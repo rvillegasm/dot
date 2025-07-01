@@ -60,3 +60,32 @@ impl HomeTildePathTransformer for Path {
         Ok(from_home_relative_path)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::path::{Path, PathBuf};
+
+    #[test]
+    fn lexical_absolute_resolves_parent_directories() {
+        let path = Path::new("/foo/../bar");
+        let abs = path.to_lexical_absolute().expect("should resolve");
+        assert_eq!(abs, PathBuf::from("/bar"));
+    }
+
+    #[test]
+    fn transform_to_tilde_converts_home_path() {
+        let home = dirs::home_dir().expect("home dir");
+        let original = home.join("myfile");
+        let tilde_path = original.transform_to_tilde_path().expect("to tilde");
+        assert_eq!(tilde_path, Path::new("~/myfile"));
+    }
+
+    #[test]
+    fn transform_from_tilde_expands_to_home() {
+        let home = dirs::home_dir().expect("home dir");
+        let tilde = Path::new("~/myfile");
+        let expanded = tilde.transform_from_tilde_path().expect("from tilde");
+        assert_eq!(expanded, home.join("myfile"));
+    }
+}
