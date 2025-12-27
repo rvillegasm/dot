@@ -1,7 +1,10 @@
 use clap::{Parser, Subcommand};
 
 use crate::{
-    commands::{AddCommand, DotCommand, InitCommand, RemoveCommand, SyncCommand},
+    commands::{
+        AddCommand, AddMultipleCommand, DotCommand, InitCommand, RemoveCommand,
+        RemoveMultipleCommand, SyncCommand,
+    },
     error::DotError,
     fs::{operations::StdFileSystem, symlink::UnixSymLinkOperations},
     manifest::Manifest,
@@ -25,13 +28,13 @@ pub enum Command {
     /// original location
     Add {
         /// Path to the file/directory to track
-        path: String,
+        paths: Vec<String>,
     },
     /// Removes a file from the manifest, deletes the symlink and returns it to the original
     /// location
     Remove {
         /// Path to the file/directory to remove
-        path: String,
+        paths: Vec<String>,
     },
     /// Goes through the manifest and creates symlinks for each file
     Sync,
@@ -50,8 +53,28 @@ pub fn parse() -> Result<(), DotError> {
         let manifest = Manifest::from_disk(&fs)?;
         let service = DotService::new(&fs, symlink_ops, manifest);
         match cli.command {
-            Command::Add { path } => Box::new(AddCommand::new(service, ConsoleOutput, path)),
-            Command::Remove { path } => Box::new(RemoveCommand::new(service, ConsoleOutput, path)),
+            Command::Add { paths } => match paths.as_slice() {
+                [single_path] => {
+                    Box::new(AddCommand::new(service, ConsoleOutput, single_path.clone()))
+                }
+                multiple_paths => Box::new(AddMultipleCommand::new(
+                    service,
+                    ConsoleOutput,
+                    multiple_paths.to_vec(),
+                )),
+            },
+            Command::Remove { paths } => match paths.as_slice() {
+                [single_path] => Box::new(RemoveCommand::new(
+                    service,
+                    ConsoleOutput,
+                    single_path.clone(),
+                )),
+                multiple_paths => Box::new(RemoveMultipleCommand::new(
+                    service,
+                    ConsoleOutput,
+                    multiple_paths.to_vec(),
+                )),
+            },
             Command::Sync => Box::new(SyncCommand::new(service, ConsoleOutput)),
             Command::Init => unreachable!(),
         }
