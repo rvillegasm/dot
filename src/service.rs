@@ -100,8 +100,13 @@ impl<'a, F: FileSystem, S: SymLinkOperations, M: ManifestOperations> DotService<
                 self.fs.create_parent_path(&symlink_path)?;
                 self.symlink_ops
                     .create_symlink(current_path, &symlink_path)?;
+                log::info!(
+                    "Created symlink from {} to {}",
+                    &symlink_path.display(),
+                    &current_path.display()
+                );
             } else if !self.symlink_ops.is_symlink(&symlink_path)? {
-                eprintln!(
+                log::error!(
                     "WARNING: Found file {}. Please remove it to sync tracked version",
                     &symlink_path.display(),
                 );
