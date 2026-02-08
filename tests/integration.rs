@@ -4,7 +4,7 @@ use std::path::Path;
 
 use tempfile::TempDir;
 
-use dot::manifest::{Manifest, MANIFEST_FILE};
+use dot::manifest::{MANIFEST_FILE, Manifest};
 
 /// Integration test helper: initialize a manifest
 fn init_manifest(repo: &Path) {

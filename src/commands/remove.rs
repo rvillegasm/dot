@@ -102,11 +102,13 @@ mod tests {
 
         // Original is now a regular file
         assert!(original_path.exists());
-        assert!(!original_path
-            .symlink_metadata()
-            .unwrap()
-            .file_type()
-            .is_symlink());
+        assert!(
+            !original_path
+                .symlink_metadata()
+                .unwrap()
+                .file_type()
+                .is_symlink()
+        );
         // Local file is gone
         assert!(!local_file.exists());
     }

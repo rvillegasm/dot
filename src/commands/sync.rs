@@ -145,11 +145,13 @@ mod tests {
         let result = sync_entries(&[(&local_file, &symlink_path)]).unwrap();
 
         assert_eq!(result.created.len(), 1);
-        assert!(symlink_path
-            .symlink_metadata()
-            .unwrap()
-            .file_type()
-            .is_symlink());
+        assert!(
+            symlink_path
+                .symlink_metadata()
+                .unwrap()
+                .file_type()
+                .is_symlink()
+        );
     }
 
     #[test]

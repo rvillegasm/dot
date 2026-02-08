@@ -98,11 +98,13 @@ mod tests {
         assert!(local_path.exists());
         assert_eq!(local_path, repo.path().join("myconfig"));
         // Original is now a symlink
-        assert!(source_file
-            .symlink_metadata()
-            .unwrap()
-            .file_type()
-            .is_symlink());
+        assert!(
+            source_file
+                .symlink_metadata()
+                .unwrap()
+                .file_type()
+                .is_symlink()
+        );
     }
 
     #[test]
