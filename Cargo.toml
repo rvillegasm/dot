@@ -1,6 +1,6 @@
 [package]
 name = "dot_rust"
-version = "1.0.3"
+version = "1.0.4"
 edition = "2024"
 description = "A simple configuration files (i.e. dotfiles) manager."
 categories = ["command-line-utilities"]
