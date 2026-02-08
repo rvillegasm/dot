@@ -10,5 +10,4 @@ target/
 *.pdb
 
 # ai tools
-GEMINI.md
 CLAUDE.md
