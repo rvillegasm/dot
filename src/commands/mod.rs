@@ -3,15 +3,16 @@ mod init;
 mod remove;
 mod sync;
 
-use crate::error::DotError;
-
 pub use add::AddCommand;
 pub use init::InitCommand;
 pub use remove::RemoveCommand;
 pub use sync::SyncCommand;
 
-/// A trait defining the core operations for the dot application
-pub trait DotCommand {
+use crate::error::Result;
+
+/// Trait for executable commands.
+/// Each command is self-contained and directly uses the abstractions it needs.
+pub trait Command {
     /// Execute the command
-    fn execute(&mut self) -> Result<(), DotError>;
+    fn execute(self) -> Result<()>;
 }

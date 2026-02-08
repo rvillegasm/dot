@@ -1,6 +1,6 @@
 [package]
 name = "dot_rust"
-version = "1.0.2"
+version = "1.0.3"
 edition = "2024"
 description = "A simple configuration files (i.e. dotfiles) manager."
 categories = ["command-line-utilities"]
@@ -9,13 +9,19 @@ repository = "https://github.com/rvillegasm/dot"
 authors = ["Rafael Villegas <rafa.villegas.michel@gmail.com>"]
 license = "MIT"
 
+[lib]
+name = "dot"
+path = "src/lib.rs"
+
 [[bin]]
 name = "dot"
 path = "src/main.rs"
 
 [dependencies]
 clap = { version = "4.5.1", features = ["derive"] }
-
 dirs = "6.0.0"
 thiserror = "2.0.12"
 toml = "0.8.10"
+
+[dev-dependencies]
+tempfile = "3"
