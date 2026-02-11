@@ -1,8 +1,8 @@
+# Dot - A Simple Dotfiles Manager
+
 <div align="center">
   <img src="assets/logo.png" alt="dot logo" width="200"/>
 </div>
-
-# Dot - A Simple Dotfiles Manager
 
 ![Build Status](https://github.com/rvillegasm/dot/workflows/Build%20and%20Test/badge.svg)
 ![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)
