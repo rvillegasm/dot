@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.0] - 2026-02-11
+
+### Features
+
+- Improve docs ([4906684](https://github.com/rvillegasm/dot/commit/4906684389b0d9fc7c42e495d29f236c1d72a2aa))
+
+
 ## [1.0.4] - 2026-02-08
 
 ### Bug Fixes
