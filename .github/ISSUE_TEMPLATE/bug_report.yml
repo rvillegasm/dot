@@ -1,0 +1,80 @@
+name: Bug Report
+description: Report a bug or unexpected behavior in dot
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug! Please fill out the information below to help us diagnose and fix the issue.
+
+  - type: dropdown
+    id: dot-version
+    attributes:
+      label: dot Version
+      description: Which version of dot are you using?
+      options:
+        - Latest release (from crates.io)
+        - Git main branch
+        - Other (please specify in additional context)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating System
+      description: Which operating system are you using?
+      options:
+        - macOS
+        - Linux
+        - BSD
+        - Other (please specify below)
+    validations:
+      required: true
+
+  - type: input
+    id: rust-version
+    attributes:
+      label: Rust Version
+      description: Output of `rustc --version`
+      placeholder: "rustc 1.XX.X (abc123 2025-XX-XX)"
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: Expected Behavior
+      description: What did you expect to happen?
+      placeholder: Describe what you expected to happen...
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual-behavior
+    attributes:
+      label: Actual Behavior
+      description: What actually happened?
+      placeholder: Describe what actually happened...
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction-steps
+    attributes:
+      label: Steps to Reproduce
+      description: Please provide detailed steps to reproduce the issue
+      placeholder: |
+        1. Run `dot init ~/my-dotfiles`
+        2. Execute `dot add ~/.bashrc`
+        3. Observe error...
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Context
+      description: Add any other context about the problem here (logs, screenshots, manifest contents, etc.)
+      placeholder: |
+        Command output, error messages, or relevant manifest content...
