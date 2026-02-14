@@ -45,7 +45,7 @@ impl Command for RemoveCommand {
         let restored_path = Self::remove_from_manifest(&mut manifest, &self.file_path)?;
         manifest.save()?;
 
-        println!(
+        log::info!(
             "Removed {} (restored to {})",
             self.file_path.display(),
             restored_path.display()
