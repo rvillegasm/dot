@@ -1,0 +1,46 @@
+[workspace]
+# cargo-dist creates the GitHub Release, not release-plz
+git_release_enable = false
+# release-plz creates the git tag that triggers cargo-dist
+git_tag_enable = true
+# release-plz handles crates.io publishing
+publish = true
+# Not needed for a CLI tool (no library API consumers)
+semver_check = false
+
+[changelog]
+header = """
+# Changelog\n
+All notable changes to this project will be documented in this file.\n
+"""
+body = """
+{%- macro remote_url() -%}
+  https://github.com/rvillegasm/dot
+{%- endmacro -%}
+
+{% if version -%}
+    ## [{{ version | trim_start_matches(pat="v") }}] - {{ timestamp | date(format="%Y-%m-%d") }}
+{% else -%}
+    ## [Unreleased]
+{% endif -%}
+
+{% for group, commits in commits | group_by(attribute="group") %}
+    ### {{ group | striptags | trim | upper_first }}
+    {% for commit in commits %}
+        - {% if commit.scope %}*({{ commit.scope }})* {% endif %}{{ commit.message | upper_first }} \
+            ([{{ commit.id | truncate(length=7, end="") }}]({{ self::remote_url() }}/commit/{{ commit.id }}))\
+    {% endfor %}
+{% endfor %}\n
+"""
+trim = true
+commit_parsers = [
+    { message = "^feat", group = "<!-- 0 -->Features" },
+    { message = "^fix", group = "<!-- 1 -->Bug Fixes" },
+    { message = "^refactor", group = "<!-- 2 -->Refactor" },
+    { message = "^doc", group = "<!-- 3 -->Documentation" },
+    { message = "^perf", group = "<!-- 4 -->Performance" },
+    { message = "^test", group = "<!-- 5 -->Testing" },
+    { message = "^chore", group = "<!-- 6 -->Miscellaneous" },
+    { message = "^ci", group = "<!-- 6 -->Miscellaneous" },
+    { message = "^build", group = "<!-- 6 -->Miscellaneous" },
+]

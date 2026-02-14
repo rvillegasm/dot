@@ -3,11 +3,8 @@ use env_logger::{Builder, Env};
 mod cli;
 mod commands;
 mod error;
-mod fs;
 mod manifest;
-mod output;
-mod path_ext;
-mod service;
+mod path;
 
 fn main() {
     Builder::from_env(Env::default().default_filter_or("info"))
