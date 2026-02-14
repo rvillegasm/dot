@@ -11,7 +11,7 @@ fn main() {
         .format_timestamp_secs()
         .init();
 
-    if let Err(e) = cli::parse() {
+    if let Err(e) = cli::run() {
         log::error!("\x1b[31m{e}\x1b[0m");
         std::process::exit(1);
     }
