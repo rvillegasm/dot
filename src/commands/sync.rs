@@ -73,7 +73,7 @@ impl Command for SyncCommand {
         let result = Self::sync_manifest(&manifest)?;
 
         for created in &result.created {
-            println!(
+            log::info!(
                 "Created symlink: {} -> {}",
                 created.symlink.display(),
                 created.local.display()
@@ -81,14 +81,14 @@ impl Command for SyncCommand {
         }
 
         for conflict in &result.conflicts {
-            eprintln!(
-                "Warning: {} exists but is not a symlink",
+            log::warn!(
+                "{} exists but is not a symlink — skipping",
                 conflict.display()
             );
         }
 
         if result.created.is_empty() && result.conflicts.is_empty() {
-            println!("Up to date");
+            log::info!("Up to date");
         }
 
         Ok(())

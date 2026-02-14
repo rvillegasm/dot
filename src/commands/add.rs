@@ -46,7 +46,7 @@ impl Command for AddCommand {
         let local_path = Self::add_to_manifest(&mut manifest, &self.file_path)?;
         manifest.save()?;
 
-        println!("{} -> {}", local_path.display(), self.file_path.display());
+        log::info!("{} -> {}", local_path.display(), self.file_path.display());
         Ok(())
     }
 }

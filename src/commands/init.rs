@@ -26,7 +26,7 @@ impl Command for InitCommand {
             return Err(Error::AlreadyExists(path.to_path_buf()));
         }
         fs::write(path, "")?;
-        println!("Initialized empty dot repository");
+        log::info!("Initialized dot repository");
         Ok(())
     }
 }
